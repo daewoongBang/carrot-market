@@ -51,12 +51,6 @@ export default function Layout({
 
       <div className={cls('pt-12', hasTabBar ? 'pb-24' : '')}>{children}</div>
 
-      {/* {MENU_PATH.map((path, index)=> (
-        <Link href={path} key={index}>
-
-        </Link>
-      ))} */}
-
       {hasTabBar && (
         <nav className='bg-white max-w-xl text-gray-700 border-t fixed bottom-0 w-full px-10 pb-5 pt-3 flex justify-between text-xs'>
           <Link href='/'>
