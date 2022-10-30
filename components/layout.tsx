@@ -10,8 +10,6 @@ interface LayoutProps {
   children: React.ReactNode;
 }
 
-const MENU_PATH = ['/', '/community', '/chats', '/live', '/profile'];
-
 export default function Layout({
   title,
   canGoBack,
