@@ -1,7 +1,7 @@
 import type { NextPage } from 'next';
 import Link from 'next/link';
-import Rating from '../../components/rating';
-import Layout from '../../components/layout';
+import Rating from '@components/rating';
+import Layout from '@components/layout';
 
 const Profile: NextPage = () => {
   return (

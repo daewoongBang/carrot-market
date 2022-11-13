@@ -1,14 +1,39 @@
 import type { NextPage } from 'next';
 import { useState } from 'react';
-import Button from '../components/button';
-import Input from '../components/input';
-import { cls } from '../libs/utils';
+import { useForm } from 'react-hook-form';
+
+import Button from '@components/button';
+import Input from '@components/input';
+import useMutation from '@libs/client/useMutation';
+import { cls } from '@libs/client/utils';
+
+interface EnterForm {
+  email?: string;
+  phone?: string;
+}
 
 const Enter: NextPage = () => {
   const [method, setMethod] = useState<'email' | 'phone'>('email');
 
-  const onEmailClick = () => setMethod('email');
-  const onPhoneClick = () => setMethod('phone');
+  const [enter, { loading, data, error }] = useMutation('/api/users/enter');
+
+  const { register, reset, handleSubmit } = useForm<EnterForm>();
+
+  const onEmailClick = () => {
+    reset();
+    setMethod('email');
+  };
+
+  const onPhoneClick = () => {
+    reset();
+    setMethod('phone');
+  };
+
+  const onValid = (formData: EnterForm) => {
+    if (loading) return;
+
+    enter(formData);
+  };
 
   return (
     <div className='mt-16 p-4'>
@@ -45,11 +70,21 @@ const Enter: NextPage = () => {
           </div>
         </div>
 
-        <form className='flex flex-col mt-8 space-y-4'>
+        <form
+          onSubmit={handleSubmit(onValid)}
+          className='flex flex-col mt-8 space-y-4'
+        >
           {method === 'email' ? (
-            <Input name='email' label='Email address' type='email' required />
+            <Input
+              register={register('email', { required: true })}
+              name='email'
+              label='Email address'
+              type='email'
+              required
+            />
           ) : method === 'phone' ? (
             <Input
+              register={register('phone', { required: true })}
               name='phone'
               label='Phone number'
               type='number'
@@ -60,7 +95,11 @@ const Enter: NextPage = () => {
 
           <Button
             text={
-              method === 'email' ? 'Get login link' : 'Get one-time password'
+              loading
+                ? 'Loading'
+                : method === 'email'
+                ? 'Get login link'
+                : 'Get one-time password'
             }
           />
         </form>
