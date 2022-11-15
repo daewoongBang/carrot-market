@@ -13,3 +13,5 @@
 - **React Hook Form** https://react-hook-form.com/
 
 - **Twilio** https://www.twilio.com/
+
+- **SendGrid** https://sendgrid.com/
