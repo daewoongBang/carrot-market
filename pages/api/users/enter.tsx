@@ -13,7 +13,7 @@ async function handler(
   res: NextApiResponse<ResponseType>
 ) {
   const { phone, email } = req.body;
-  const user = !!phone ? { phone: +phone } : !!email ? { email } : null;
+  const user = !!phone ? { phone } : !!email ? { email } : null;
 
   if (!user) return res.status(400).json({ ok: false });
 
@@ -36,26 +36,26 @@ async function handler(
     }
   });
 
-  switch (true) {
-    case !!phone:
-      await twilioClient.messages.create({
-        messagingServiceSid: process.env.TWILIO_MSID,
-        to: process.env.MY_PHONE!,
-        from: process.env.COMPANY_PHONE!,
-        body: `Your login token is ${payload}`
-      });
-      break;
+  // switch (true) {
+  //   case !!phone:
+  //     await twilioClient.messages.create({
+  //       messagingServiceSid: process.env.TWILIO_MSID,
+  //       to: process.env.MY_PHONE!,
+  //       from: process.env.COMPANY_PHONE!,
+  //       body: `Your login token is ${payload}`
+  //     });
+  //     break;
 
-    case !!email:
-      await mail.send({
-        from: 'bdw7898@naver.com',
-        to: 'bdw1572@gmail.com',
-        subject: 'Your Carrot Market Verification Email',
-        text: `Your token is ${payload}`,
-        html: `<strong>Your token is ${payload}</strong>`
-      });
-      break;
-  }
+  //   case !!email:
+  //     await mail.send({
+  //       from: process.env.SENDGRID_FROM!,
+  //       to: process.env.SENDGRID_TO!,
+  //       subject: 'Your Carrot Market Verification Email',
+  //       text: `Your token is ${payload}`,
+  //       html: `<strong>Your token is ${payload}</strong>`
+  //     });
+  //     break;
+  // }
 
   return res.json({
     ok: true
