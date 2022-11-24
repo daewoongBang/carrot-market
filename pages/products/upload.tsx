@@ -5,13 +5,45 @@ import Button from '@components/button';
 import Input from '@components/input';
 import Layout from '@components/layout';
 import TextArea from '@components/textarea';
+import useMutation from '@libs/client/useMutation';
+import { useEffect } from 'react';
+import { Product } from '@prisma/client';
+import { useRouter } from 'next/router';
+
+interface UploadProductForm {
+  name: string;
+  price: number;
+  description: string;
+}
+
+interface UploadProductMutation {
+  ok: boolean;
+  product: Product;
+}
 
 const Upload: NextPage = () => {
-  const { register } = useForm();
+  const { register, handleSubmit } = useForm<UploadProductForm>();
+
+  const router = useRouter();
+
+  const [uploadProduct, { loading, data }] =
+    useMutation<UploadProductMutation>('/api/products');
+
+  const onValid = (data: UploadProductForm) => {
+    if (loading) return;
+
+    uploadProduct(data);
+  };
+
+  useEffect(() => {
+    if (data?.ok) {
+      router.push(`/products/${data.product.id}`);
+    }
+  }, [data, router]);
 
   return (
     <Layout title='Upload Product' canGoBack>
-      <form className='py-4 space-y-4'>
+      <form className='py-4 space-y-4' onSubmit={handleSubmit(onValid)}>
         <div>
           <label className='w-full cursor-pointer text-gray-600 hover:border-orange-500 hover:text-orange-500 flex items-center justify-center border-2 border-dashed border-gray-300 h-48 rounded-md'>
             <svg
@@ -42,7 +74,7 @@ const Upload: NextPage = () => {
         />
 
         <Input
-          register={register('price')}
+          register={register('price', { required: true })}
           label='Price'
           placeholder='0.00'
           name='price'
@@ -51,9 +83,14 @@ const Upload: NextPage = () => {
           required
         />
 
-        <TextArea name='description' label='Description' />
+        <TextArea
+          register={register('description', { required: true })}
+          name='description'
+          label='Description'
+          required
+        />
 
-        <Button text='Upload Item' />
+        <Button text={loading ? 'Loading...' : 'Upload Item'} />
       </form>
     </Layout>
   );
