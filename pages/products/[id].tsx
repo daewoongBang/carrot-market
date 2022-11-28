@@ -1,8 +1,30 @@
-import type { NextPage } from 'next';
+import { Fragment, useEffect, useState } from 'react';
+import Link from 'next/link';
+import { useRouter } from 'next/router';
+import useSWR from 'swr';
+
 import Button from '@components/button';
 import Layout from '@components/layout';
 
+import type { NextPage } from 'next';
+import { Product, User } from '@prisma/client';
+
+interface IProduct extends Product {
+  user: User;
+}
+
 const ItemDetail: NextPage = () => {
+  const [product, setProduct] = useState<IProduct>();
+
+  const router = useRouter();
+  const { data } = useSWR(
+    router.query.id ? `/api/products/${router.query.id}` : null
+  );
+
+  useEffect(() => {
+    data && setProduct(data.product);
+  }, [data]);
+
   return (
     <Layout canGoBack>
       <div className='p-4'>
@@ -12,20 +34,27 @@ const ItemDetail: NextPage = () => {
           <div className='flex cursor-pointer items-center space-x-3 py-3 border-t border-b'>
             <div className='w-12 h-12 rounded-full bg-slate-300' />
             <div>
-              <p className='text-sm font-medium text-gray-700'>Steve Jebs</p>
-              <p className='text-xs font-medium text-gray-500'>
-                View profile &rarr;
+              <p className='text-sm font-medium text-gray-700'>
+                {data?.product?.user?.name}
               </p>
+
+              <Link href={`/users/profiles/${product?.user?.id}`}>
+                <p className='text-xs font-medium text-gray-500'>
+                  View profile &rarr;
+                </p>
+              </Link>
             </div>
           </div>
 
           <div className='mt-10'>
-            <h1 className='text-3xl font-bold text-gray-900'>Galaxy S50</h1>
+            <h1 className='text-3xl font-bold text-gray-900'>
+              {product?.name}
+            </h1>
 
-            <span className='text-3xl block mt-3'>$140</span>
+            <span className='text-3xl block mt-3'>${product?.price}</span>
 
             <p className='text-base my-6 text-gray-700'>
-              My money&apos;s in that office, right? You understand?
+              {product?.description}
             </p>
 
             <div className='flex items-center justify-between space-x-2'>

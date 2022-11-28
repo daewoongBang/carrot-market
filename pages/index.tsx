@@ -4,8 +4,17 @@ import FloatingButton from '@components/floating-button';
 import Layout from '@components/layout';
 import useUser from '@libs/client/useUser';
 import Head from 'next/head';
+import useSWR from 'swr';
+import { Product } from '@prisma/client';
+
+interface ProductsResponse {
+  ok: boolean;
+  products: Product[];
+}
 
 const Home: NextPage = () => {
+  const { data } = useSWR<ProductsResponse>('/api/products');
+
   return (
     <Layout title='Home' hasTabBar>
       <Head>
@@ -13,12 +22,12 @@ const Home: NextPage = () => {
       </Head>
 
       <div className='flex flex-col space-y-5 divide-y'>
-        {[1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1].map((_, i) => (
+        {data?.products?.map(product => (
           <Item
-            id={i}
-            key={i}
-            title={'iPhone 14'}
-            price={99}
+            id={product.id}
+            key={product.id}
+            title={product.name}
+            price={product.price}
             comments={1}
             hearts={3}
           />
