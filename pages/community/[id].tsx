@@ -7,6 +7,8 @@ import Link from 'next/link';
 import Layout from '@components/layout';
 import TextArea from '@components/textarea';
 import { Answer, Post, User } from '@prisma/client';
+import useMutation from '@libs/client/useMutation';
+import { cls } from '@libs/client/utils';
 
 interface AnswerWithUser extends Answer {
   user: User;
@@ -24,14 +26,39 @@ interface PostWithUser extends Post {
 interface CommunityPostResponse {
   ok: boolean;
   post: PostWithUser;
+  isWondering: boolean;
 }
 
 const CommunityPostDetail: NextPage = () => {
   const { register } = useForm();
   const router = useRouter();
-  const { data, error } = useSWR<CommunityPostResponse>(
+  const { data, mutate } = useSWR<CommunityPostResponse>(
     router.query.id ? `/api/posts/${router.query.id}` : null
   );
+
+  const [toggleWondering] = useMutation(`/api/posts/${router.query.id}/wonder`);
+
+  const onClickWondering = () => {
+    if (!data) return;
+
+    mutate(
+      {
+        ...data,
+        post: {
+          ...data.post,
+          _count: {
+            ...data.post._count,
+            wonderings:
+              data?.post._count.wonderings + (data.isWondering ? -1 : 1)
+          }
+        },
+        isWondering: !data.isWondering
+      },
+      false
+    );
+
+    toggleWondering({});
+  };
 
   return (
     <Layout canGoBack>
@@ -45,10 +72,10 @@ const CommunityPostDetail: NextPage = () => {
 
           <div>
             <p className='text-sm font-medium text-gray-700'>
-              {data?.post.user.name}
+              {data?.post?.user?.name}
             </p>
 
-            <Link href={`/users/profiles/${data?.post.user?.id}`}>
+            <Link href={`/users/profiles/${data?.post?.user?.id}`}>
               <p className='text-xs font-medium text-gray-500'>
                 View profile &rarr;
               </p>
@@ -63,7 +90,13 @@ const CommunityPostDetail: NextPage = () => {
           </div>
 
           <div className='flex px-4 space-x-5 mt-3 text-gray-700 py-2.5 border-t border-b-[2px]  w-full'>
-            <span className='flex space-x-2 items-center text-sm'>
+            <button
+              onClick={onClickWondering}
+              className={cls(
+                'flex space-x-2 items-center text-sm',
+                data?.isWondering ? 'text-teal-500' : ''
+              )}
+            >
               <svg
                 className='w-4 h-4'
                 fill='none'
@@ -79,8 +112,8 @@ const CommunityPostDetail: NextPage = () => {
                 ></path>
               </svg>
 
-              <span>궁금해요 {data?.post._count.wonderings}</span>
-            </span>
+              <span>궁금해요 {data?.post?._count?.wonderings}</span>
+            </button>
 
             <span className='flex space-x-2 items-center text-sm'>
               <svg
@@ -98,13 +131,13 @@ const CommunityPostDetail: NextPage = () => {
                 ></path>
               </svg>
 
-              <span>답변 {data?.post._count.answers}</span>
+              <span>답변 {data?.post?._count?.answers}</span>
             </span>
           </div>
         </div>
 
         <div className='px-4 my-5 space-y-5'>
-          {data?.post.answers.map(answer => (
+          {data?.post?.answers.map(answer => (
             <div key={answer.id} className='flex items-start space-x-3'>
               <div className='w-8 h-8 bg-slate-200 rounded-full' />
 

@@ -1,21 +1,18 @@
-import { NextApiRequest, NextApiResponse } from 'next';
-import withHandler, { ResponseType } from '@libs/server/withHandler';
+import withHandler from '@libs/server/withHandler';
 import { withApiSession } from '@libs/server/withSession';
+import { NextApiRequest, NextApiResponse } from 'next';
 import client from '@libs/server/client';
 
-async function handler(
-  req: NextApiRequest,
-  res: NextApiResponse<ResponseType>
-) {
+const handler = async (request: NextApiRequest, response: NextApiResponse) => {
   const {
     query: { id },
     session: { user }
-  } = req;
+  } = request;
 
   if (id) {
-    const alreadyExists = await client.fav.findFirst({
+    const alreadyExists = await client.wondering.findFirst({
       where: {
-        productId: +id.toString(),
+        postId: +id.toString(),
         userId: user?.id
       },
       select: {
@@ -24,20 +21,20 @@ async function handler(
     });
 
     if (alreadyExists) {
-      await client.fav.delete({
+      await client.wondering.delete({
         where: {
           id: alreadyExists.id
         }
       });
     } else {
-      await client.fav.create({
+      await client.wondering.create({
         data: {
           user: {
             connect: {
               id: user?.id
             }
           },
-          product: {
+          post: {
             connect: {
               id: +id.toString()
             }
@@ -46,9 +43,9 @@ async function handler(
       });
     }
 
-    res.json({ ok: true });
+    response.json({ ok: true });
   }
-}
+};
 
 export default withApiSession(
   withHandler({
