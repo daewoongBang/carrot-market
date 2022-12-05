@@ -19,7 +19,17 @@ async function handler(
       kind: kind as Kind
     },
     include: {
-      product: true
+      product: {
+        include: {
+          _count: {
+            select: {
+              records: {
+                where: { kind: 'Fav' }
+              }
+            }
+          }
+        }
+      }
     }
   });
 

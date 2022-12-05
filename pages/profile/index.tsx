@@ -2,8 +2,23 @@ import type { NextPage } from 'next';
 import Link from 'next/link';
 import Rating from '@components/rating';
 import Layout from '@components/layout';
+import useUser from '@libs/client/useUser';
+import useSWR from 'swr';
+import { Review, User } from '@prisma/client';
+
+interface ReviewWithUser extends Review {
+  createdBy: User;
+}
+
+interface ReviewsResponse {
+  ok: boolean;
+  reviews: ReviewWithUser[];
+}
 
 const Profile: NextPage = () => {
+  const { user } = useUser();
+  const { data } = useSWR<ReviewsResponse>('/api/reviews');
+
   return (
     <Layout title='My Carrot' hasTabBar>
       <div className='px-4'>
@@ -11,7 +26,7 @@ const Profile: NextPage = () => {
           <div className='w-16 h-16 bg-slate-500 rounded-full' />
 
           <div className='flex flex-col'>
-            <span className='font-medium text-gray-900'>Steve Jebs</span>
+            <span className='font-medium text-gray-900'>{user?.name}</span>
 
             <Link href='/profile/edit'>
               <a className='text-sm text-gray-700'>Edit profile &rarr;</a>
@@ -93,28 +108,25 @@ const Profile: NextPage = () => {
           </Link>
         </div>
 
-        <div className='mt-12'>
-          <div className='flex space-x-4 items-center'>
-            <div className='w-12 h-12 rounded-full bg-slate-400' />
+        {data?.reviews.map(review => (
+          <div key={review.id} className='mt-12'>
+            <div className='flex space-x-4 items-center'>
+              <div className='w-12 h-12 rounded-full bg-slate-400' />
 
-            <div>
-              <h4 className='text-sm font-bold text-gray-800'>Suji</h4>
+              <div>
+                <h4 className='text-sm font-bold text-gray-800'>
+                  {review.createdBy.name}
+                </h4>
 
-              <Rating star={5} />
+                <Rating star={review.score} />
+              </div>
+            </div>
+
+            <div className='mt-4 text-gray-600 text-sm'>
+              <p>{review.review}</p>
             </div>
           </div>
-
-          <div className='mt-4 text-gray-600 text-sm'>
-            <p>
-              Normally, both your asses would be dead as fucking fried chicken,
-              but you happen to pull this shit while I&apos;m in a transitional
-              period so I don&apos;t wanna kill you, I wanna help you. But I
-              can&apos;t give you this case, it don&apos;t belong to me.
-              Besides, I&apos;ve already been through too much shit this morning
-              over this case to hand it over to your dumb ass.
-            </p>
-          </div>
-        </div>
+        ))}
       </div>
     </Layout>
   );

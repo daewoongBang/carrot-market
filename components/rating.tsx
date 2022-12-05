@@ -1,5 +1,7 @@
+import { cls } from '@libs/client/utils';
+
 interface RatingProps {
-  star?: 0 | 1 | 2 | 3 | 4 | 5;
+  star: number;
 }
 
 export default function Star({ star = 0 }: RatingProps) {
@@ -9,9 +11,11 @@ export default function Star({ star = 0 }: RatingProps) {
     for (let i = 0; i < 5; i++) {
       stars.push(
         <svg
-          className={
+          key={i}
+          className={cls(
+            'h-5 w-5',
             i < star ? `text-yellow-400 h-5 w-5` : 'text-gray-400 h-5 w-5'
-          }
+          )}
           xmlns='http://www.w3.org/2000/svg'
           viewBox='0 0 20 20'
           fill='currentColor'
