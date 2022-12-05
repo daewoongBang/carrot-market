@@ -13,10 +13,11 @@ async function handler(
   } = req;
 
   if (id) {
-    const alreadyExists = await client.fav.findFirst({
+    const alreadyExists = await client.record.findFirst({
       where: {
         productId: +id.toString(),
-        userId: user?.id
+        userId: user?.id,
+        kind: 'Fav'
       },
       select: {
         id: true
@@ -24,13 +25,13 @@ async function handler(
     });
 
     if (alreadyExists) {
-      await client.fav.delete({
+      await client.record.delete({
         where: {
           id: alreadyExists.id
         }
       });
     } else {
-      await client.fav.create({
+      await client.record.create({
         data: {
           user: {
             connect: {
@@ -41,7 +42,8 @@ async function handler(
             connect: {
               id: +id.toString()
             }
-          }
+          },
+          kind: 'Fav'
         }
       });
     }

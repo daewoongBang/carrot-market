@@ -13,7 +13,7 @@ async function handler(
         include: {
           _count: {
             select: {
-              favs: true
+              records: { where: { kind: 'Fav' } }
             }
           }
         }
