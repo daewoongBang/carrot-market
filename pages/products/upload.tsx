@@ -90,7 +90,7 @@ const Upload: NextPage = () => {
           required
         />
 
-        <Button text={loading ? 'Loading...' : 'Upload Item'} />
+        <Button text={'Upload Item'} loading={loading} />
       </form>
     </Layout>
   );

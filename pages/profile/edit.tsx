@@ -4,13 +4,61 @@ import { useForm } from 'react-hook-form';
 import Button from '@components/button';
 import Input from '@components/input';
 import Layout from '@components/layout';
+import { useEffect } from 'react';
+import useUser from '@libs/client/useUser';
+import useMutation from '@libs/client/useMutation';
+
+interface EditProfileForm {
+  email?: string;
+  phone?: string;
+  name?: string;
+  formErrors?: string;
+}
+
+interface EditProfileResponse {
+  ok: boolean;
+  error?: string;
+}
 
 const EditProfile: NextPage = () => {
-  const { register } = useForm();
+  const { user } = useUser();
+  const {
+    register,
+    setValue,
+    setError,
+    handleSubmit,
+    formState: { errors }
+  } = useForm<EditProfileForm>();
+  const [editProfile, { data, loading }] =
+    useMutation<EditProfileResponse>(`/api/users/me`);
+
+  useEffect(() => {
+    !!user?.email && setValue('email', user.email);
+    !!user?.phone && setValue('phone', user.phone);
+    !!user?.name && setValue('name', user.name);
+  }, [user, setValue]);
+
+  const onValid = ({ email, phone, name }: EditProfileForm) => {
+    if (loading) return;
+
+    if (email === '' && phone === '' && name === '') {
+      setError('formErrors', {
+        message: 'Email OR Phone number are required. You need to choose one.'
+      });
+    }
+
+    editProfile({ email, phone, name });
+  };
+
+  useEffect(() => {
+    if (data && !data.ok && data.error) {
+      setError('formErrors', { message: data.error });
+    }
+  }, [data, setError]);
 
   return (
     <Layout title='Edit Profile' canGoBack>
-      <form className='py-10 px-4 space-y-4'>
+      <form onSubmit={handleSubmit(onValid)} className='py-10 px-4 space-y-4'>
         <div className='flex items-center space-x-3'>
           <div className='w-14 h-14 rounded-full bg-slate-500' />
 
@@ -29,11 +77,17 @@ const EditProfile: NextPage = () => {
         </div>
 
         <Input
+          register={register('name')}
+          label='Name'
+          name='name'
+          type='text'
+        />
+
+        <Input
           register={register('email')}
           label='Email address'
           name='email'
           type='email'
-          required
         />
 
         <Input
@@ -42,10 +96,15 @@ const EditProfile: NextPage = () => {
           name='phone'
           type='number'
           kind='phone'
-          required
         />
 
-        <Button text='Update profile' />
+        {errors.formErrors ? (
+          <span className='my-2 text-red-500 font-bold text-center block'>
+            {errors.formErrors.message}
+          </span>
+        ) : null}
+
+        <Button text='Update profile' loading={loading} />
       </form>
     </Layout>
   );

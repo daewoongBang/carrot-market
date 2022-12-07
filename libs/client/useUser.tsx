@@ -1,9 +1,15 @@
 import { useEffect } from 'react';
 import { useRouter } from 'next/router';
 import useSWR from 'swr';
+import { User } from '@prisma/client';
+
+interface ProfileResponse {
+  ok: boolean;
+  profile: User;
+}
 
 export default function useUser() {
-  const { data, error } = useSWR('/api/users/me');
+  const { data, error } = useSWR<ProfileResponse>('/api/users/me');
 
   const router = useRouter();
 

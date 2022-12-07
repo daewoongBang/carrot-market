@@ -3,6 +3,7 @@ import { cls } from '@libs/client/utils';
 interface ButtonProps {
   text: string;
   large?: boolean;
+  loading?: boolean;
   [key: string]: any;
 }
 
@@ -10,6 +11,7 @@ export default function Button({
   text,
   large = false,
   onClick,
+  loading = false,
   ...rest
 }: ButtonProps) {
   return (
@@ -20,7 +22,7 @@ export default function Button({
       )}
       {...rest}
     >
-      {text}
+      {loading ? 'Loading...' : text}
     </button>
   );
 }

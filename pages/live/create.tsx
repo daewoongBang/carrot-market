@@ -30,7 +30,11 @@ const Create: NextPage = () => {
           required
         />
 
-        <TextArea name='description' label='Description' />
+        <TextArea
+          register={register('description')}
+          name='description'
+          label='Description'
+        />
 
         <Button text='Go live' />
       </form>

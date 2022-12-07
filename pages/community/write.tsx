@@ -46,7 +46,7 @@ const Write: NextPage = () => {
           placeholder='Ask a question!'
         />
 
-        <Button text={loading ? 'Loading...' : 'Submit'} />
+        <Button text={'Submit'} loading={loading} />
       </form>
     </Layout>
   );
