@@ -1,5 +1,7 @@
 import type { NextPage } from 'next';
 import Link from 'next/link';
+import { useRouter } from 'next/router';
+
 import FloatingButton from '@components/floating-button';
 import Layout from '@components/layout';
 import { Stream } from '@prisma/client';
@@ -11,7 +13,13 @@ interface StreamsResponse {
 }
 
 const Streams: NextPage = () => {
-  const { data } = useSWR<StreamsResponse>(`/api/streams`);
+  const router = useRouter();
+
+  const { data } = useSWR<StreamsResponse>(
+    router.query.page
+      ? `/api/streams?page=${router.query.page}`
+      : `/api/streams`
+  );
 
   return (
     <Layout title='Stream' hasTabBar>

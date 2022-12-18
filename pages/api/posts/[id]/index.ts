@@ -37,7 +37,8 @@ async function handler(
               }
             },
             createdAt: true
-          }
+          },
+          take: 10
         },
         _count: {
           select: {

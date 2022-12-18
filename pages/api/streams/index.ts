@@ -31,7 +31,15 @@ async function handler(
       break;
 
     case 'GET':
-      const streams = await client.stream.findMany();
+      const { page } = req.query;
+
+      const currentPage = !!page && Number(page) > 0 ? Number(page) : 1;
+
+      const pageSize = 10;
+      const streams = await client.stream.findMany({
+        take: pageSize,
+        skip: (currentPage - 1) * pageSize
+      });
 
       res.json({ ok: true, streams });
       break;
