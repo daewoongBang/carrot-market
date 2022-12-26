@@ -5,6 +5,8 @@ import Layout from '@components/layout';
 import Head from 'next/head';
 import useSWR from 'swr';
 import { Product } from '@prisma/client';
+import Image from 'next/image';
+import sampleImage from '../public/local.jpeg';
 
 interface ProductWithCount extends Product {
   _count: {
@@ -34,6 +36,7 @@ const Home: NextPage = () => {
             title={product.name}
             price={product.price}
             hearts={product._count.records}
+            image={product.image}
           />
         ))}
 

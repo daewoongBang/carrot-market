@@ -22,7 +22,7 @@ async function handler(
     case 'POST':
       const {
         session: { user },
-        body: { email, phone, name }
+        body: { email, phone, name, avatarId }
       } = req;
 
       const currentUser = await client.user.findUnique({
@@ -62,6 +62,7 @@ async function handler(
         res.json({ ok: true });
       }
 
+      // Todo. Refactoring
       if (phone && phone !== currentUser?.phone) {
         const alreadyExists = Boolean(
           await client.user.findUnique({
@@ -102,9 +103,20 @@ async function handler(
             name
           }
         });
-
-        res.json({ ok: true });
       }
+
+      if (avatarId) {
+        await client.user.update({
+          where: {
+            id: user?.id
+          },
+          data: {
+            avatar: avatarId
+          }
+        });
+      }
+
+      res.json({ ok: true });
       break;
   }
 }

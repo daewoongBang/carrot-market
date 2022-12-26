@@ -27,7 +27,7 @@ async function handler(
 
     case 'POST':
       const {
-        body: { name, price, description },
+        body: { name, price, description, photoId },
         session: { user }
       } = req;
 
@@ -36,7 +36,7 @@ async function handler(
           name,
           price: +price,
           description,
-          image: 'xx',
+          image: photoId,
           user: {
             connect: {
               id: user?.id

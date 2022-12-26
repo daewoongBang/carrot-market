@@ -5,6 +5,7 @@ import Layout from '@components/layout';
 import useUser from '@libs/client/useUser';
 import useSWR from 'swr';
 import { Review, User } from '@prisma/client';
+import Image from 'next/image';
 
 interface ReviewWithUser extends Review {
   createdBy: User;
@@ -23,7 +24,17 @@ const Profile: NextPage = () => {
     <Layout title='My Carrot' hasTabBar>
       <div className='px-4'>
         <div className='flex items-center mt-4 space-x-3'>
-          <div className='w-16 h-16 bg-slate-500 rounded-full' />
+          {!!user?.avatar ? (
+            <Image
+              width={64}
+              height={64}
+              src={`https://imagedelivery.net/YTTDtCGXEuDumQh-ahhG9g/${user?.avatar}/avatar`}
+              className='w-16 h-16 bg-slate-500 rounded-full'
+              alt={user.name}
+            />
+          ) : (
+            <div className='w-16 h-16 bg-slate-500 rounded-full' />
+          )}
 
           <div className='flex flex-col'>
             <span className='font-medium text-gray-900'>{user?.name}</span>
