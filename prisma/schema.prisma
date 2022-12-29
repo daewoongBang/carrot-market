@@ -3,7 +3,7 @@
 
 generator client {
   provider        = "prisma-client-js"
-  previewFeatures = ["referentialIntegrity", "filteredRelationCount"]
+  previewFeatures = ["filteredRelationCount"]
 }
 
 datasource db {
@@ -30,6 +30,8 @@ model User {
   records         Record[]
   streams         Stream[]
   messages        Message[]
+  chat            Chat[]
+  talk            Talk[]
 }
 
 model Token {
@@ -39,6 +41,8 @@ model Token {
   userId    Int
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+
+  @@index([userId])
 }
 
 model Product {
@@ -52,6 +56,9 @@ model Product {
   price       Int
   description String   @db.MediumText
   records     Record[]
+  chat        Chat[]
+
+  @@index([userId])
 }
 
 model Post {
@@ -65,6 +72,8 @@ model Post {
   longitude  Float?
   answers    Answer[]
   wonderings Wondering[]
+
+  @@index([userId])
 }
 
 model Answer {
@@ -76,6 +85,9 @@ model Answer {
   post      Post     @relation(fields: [postId], references: [id], onDelete: Cascade)
   postId    Int
   answer    String   @db.MediumText
+
+  @@index([userId])
+  @@index([postId])
 }
 
 model Wondering {
@@ -86,6 +98,9 @@ model Wondering {
   userId    Int
   post      Post     @relation(fields: [postId], references: [id], onDelete: Cascade)
   postId    Int
+
+  @@index([userId])
+  @@index([postId])
 }
 
 model Review {
@@ -98,6 +113,9 @@ model Review {
   createdFor   User     @relation(name: "receivedReviews", fields: [createdForId], references: [id], onDelete: Cascade)
   createdForId Int
   score        Int      @default(1)
+
+  @@index([createdById])
+  @@index([createdForId])
 }
 
 model Record {
@@ -109,6 +127,9 @@ model Record {
   createdAt DateTime @default(now())
   kind      Kind
   updatedAt DateTime @updatedAt
+
+  @@index([userId])
+  @@index([productId])
 }
 
 enum Kind {
@@ -130,6 +151,8 @@ model Stream {
   cloudflareId  String
   cloudflareUrl String
   cloudflareKey String
+
+  @@index([userId])
 }
 
 model Message {
@@ -141,4 +164,35 @@ model Message {
   userId    Int
   stream    Stream   @relation(fields: [steramId], references: [id], onDelete: Cascade)
   steramId  Int
+
+  @@index([userId])
+  @@index([steramId])
+}
+
+model Chat {
+  id        Int      @id @default(autoincrement())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId    Int
+  product   Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+  productId Int
+  talk      Talk[]
+
+  @@index([userId])
+  @@index([productId])
+}
+
+model Talk {
+  id        Int      @id @default(autoincrement())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  message   String   @db.MediumText
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId    Int
+  chat      Chat  @relation(fields: [chatId], references: [id], onDelete: Cascade)
+  chatId    Int
+
+  @@index([userId])
+  @@index([chatId])
 }

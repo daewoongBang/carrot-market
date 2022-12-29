@@ -7,7 +7,7 @@ import Button from '@components/button';
 import Layout from '@components/layout';
 
 import type { NextPage } from 'next';
-import { Product, User } from '@prisma/client';
+import { Chat, Product, User } from '@prisma/client';
 import useMutation from '@libs/client/useMutation';
 import { cls } from '@libs/client/utils';
 import Image from 'next/image';
@@ -22,6 +22,11 @@ interface ItemDetailResponse {
   isLiked: boolean;
 }
 
+interface ITalkSeller {
+  ok: boolean;
+  chat: Chat;
+}
+
 const ItemDetail: NextPage = () => {
   const [product, setProduct] = useState<ProductWithUser>();
 
@@ -34,7 +39,10 @@ const ItemDetail: NextPage = () => {
     `/api/products/${router.query.id}/fav`
   );
 
-  const onFavClick = () => {
+  const [talkSeller, { loading: loadingChat, data: chatData }] =
+    useMutation<ITalkSeller>('/api/chats');
+
+  const onClickFav = () => {
     if (!data) return;
 
     mutate({ ...data, isLiked: !data.isLiked }, false);
@@ -42,9 +50,21 @@ const ItemDetail: NextPage = () => {
     !loading && toggleFav({});
   };
 
+  const onClickTalk = () => {
+    if (loadingChat) return;
+
+    talkSeller({ productId: product?.id });
+  };
+
   useEffect(() => {
     data && setProduct(data?.product);
   }, [data]);
+
+  useEffect(() => {
+    if (chatData?.ok) {
+      router.push(`/chats/${chatData.chat.id}`);
+    }
+  }, [chatData, router]);
 
   return (
     <Layout canGoBack>
@@ -57,6 +77,7 @@ const ItemDetail: NextPage = () => {
                 className='object-contain'
                 layout='fill'
                 alt={data.product.name}
+                priority={true}
               />
             </div>
           ) : (
@@ -101,10 +122,10 @@ const ItemDetail: NextPage = () => {
             </p>
 
             <div className='flex items-center justify-between space-x-2'>
-              <Button large text='Talk to seller' />
+              <Button large text='Talk to seller' onClick={onClickTalk} />
 
               <button
-                onClick={onFavClick}
+                onClick={onClickFav}
                 className={cls(
                   'p-3 rounded-md flex items-center justify-center hover:bg-gray-100',
                   data?.isLiked

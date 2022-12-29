@@ -1,10 +1,11 @@
 import type { NextPage } from 'next';
+import { useRouter } from 'next/router';
+import { useForm } from 'react-hook-form';
+import useSWR from 'swr';
+
+import { Stream } from '@prisma/client';
 import Layout from '@components/layout';
 import Message from '@components/message';
-import useSWR from 'swr';
-import { useRouter } from 'next/router';
-import { Stream } from '@prisma/client';
-import { useForm } from 'react-hook-form';
 import useMutation from '@libs/client/useMutation';
 import useUser from '@libs/client/useUser';
 
@@ -33,6 +34,7 @@ interface MessageForm {
 const StreamDetail: NextPage = () => {
   const { user } = useUser();
   const router = useRouter();
+
   const { register, handleSubmit, reset } = useForm<MessageForm>();
   const { data, mutate } = useSWR<StreamResponse>(
     router.query.id ? `/api/streams/${router.query.id}` : null,
