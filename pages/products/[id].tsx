@@ -67,7 +67,7 @@ const ItemDetail: NextPage = () => {
   }, [chatData, router]);
 
   return (
-    <Layout canGoBack>
+    <Layout canGoBack seoTitle='Product Detail'>
       <div className='p-4'>
         <div className='mb-8'>
           {!!data?.product?.image ? (

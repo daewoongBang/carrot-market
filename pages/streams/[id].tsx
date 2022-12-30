@@ -82,7 +82,7 @@ const StreamDetail: NextPage = () => {
   // }, [sendMessageData, mutate]);
 
   return (
-    <Layout canGoBack>
+    <Layout canGoBack seoTitle='Stream Detail'>
       <div className='px-4 py-10 space-y-4'>
         <iframe
           className='w-full aspect-video rounded-md shadow-sm'

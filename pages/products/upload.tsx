@@ -72,7 +72,7 @@ const Upload: NextPage = () => {
   }, [data, router]);
 
   return (
-    <Layout title='Upload Product' canGoBack>
+    <Layout title='Upload Product' canGoBack seoTitle='Upload Product'>
       <form className='py-4 space-y-4' onSubmit={handleSubmit(onValid)}>
         <div>
           {photoPreview ? (

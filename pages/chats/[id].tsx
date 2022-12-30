@@ -61,7 +61,7 @@ const ChatDetail: NextPage = () => {
   }, [messageData, mutate]);
 
   return (
-    <Layout title='Steve' canGoBack>
+    <Layout title='Steve' canGoBack seoTitle='Chat Detail'>
       <div className='px-4 py-10 pb-16 space-y-4'>
         {data?.chat?.talk.map(message => (
           <Message

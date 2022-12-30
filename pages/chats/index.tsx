@@ -22,7 +22,7 @@ const Chats: NextPage = () => {
   const { data } = useSWR<IChatsResponse>('/api/chats');
 
   return (
-    <Layout hasTabBar title='Chats'>
+    <Layout hasTabBar title='Chats' seoTitle='Chats'>
       <div className='divide-y-[1px] '>
         {data?.chats?.map(chat => (
           <Link href={`/chats/${chat.id}`} key={chat.id}>

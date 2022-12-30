@@ -38,7 +38,7 @@ const Write: NextPage = () => {
   }, [data, router]);
 
   return (
-    <Layout title='Write Post' canGoBack>
+    <Layout title='Write Post' canGoBack seoTitle='Write Post'>
       <form onSubmit={handleSubmit(onValid)} className='py-4 space-y-4'>
         <TextArea
           register={register('question', { required: true, minLength: 5 })}
