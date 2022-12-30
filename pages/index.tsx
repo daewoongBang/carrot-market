@@ -2,11 +2,8 @@ import type { NextPage } from 'next';
 import Item from '@components/item';
 import FloatingButton from '@components/floating-button';
 import Layout from '@components/layout';
-import Head from 'next/head';
-import useSWR from 'swr';
+import useSWR, { SWRConfig } from 'swr';
 import { Product } from '@prisma/client';
-import Image from 'next/image';
-import sampleImage from '../public/local.jpeg';
 
 interface ProductWithCount extends Product {
   _count: {
@@ -31,7 +28,7 @@ const Home: NextPage = () => {
             key={product.id}
             title={product.name}
             price={product.price}
-            hearts={product._count.records}
+            hearts={product._count?.records || 0}
             image={product.image}
           />
         ))}
@@ -58,4 +55,32 @@ const Home: NextPage = () => {
   );
 };
 
-export default Home;
+const Page: NextPage<{ products: ProductWithCount[] }> = ({ products }) => {
+  return (
+    <SWRConfig
+      value={{
+        fallback: {
+          '/api/products': {
+            ok: true,
+            products
+          }
+        }
+      }}
+    >
+      <Home />
+    </SWRConfig>
+  );
+};
+
+// SSR
+export async function getServerSideProps() {
+  const products = await client?.product.findMany({});
+
+  return {
+    props: {
+      products: JSON.parse(JSON.stringify(products))
+    }
+  };
+}
+
+export default Page;
