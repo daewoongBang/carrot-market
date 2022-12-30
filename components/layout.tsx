@@ -52,7 +52,7 @@ export default function Layout({
       {hasTabBar && (
         <nav className='bg-white max-w-xl text-gray-700 border-t fixed bottom-0 w-full px-10 pb-5 pt-3 flex justify-between text-xs'>
           <Link href='/'>
-            <a
+            <div
               className={cls(
                 'flex flex-col items-center space-y-2',
                 router.pathname === '/'
@@ -75,11 +75,11 @@ export default function Layout({
                 ></path>
               </svg>
               <span>Home</span>
-            </a>
+            </div>
           </Link>
 
           <Link href='/community'>
-            <a
+            <div
               className={cls(
                 'flex flex-col items-center space-y-2 ',
                 router.pathname === '/community'
@@ -102,11 +102,11 @@ export default function Layout({
                 ></path>
               </svg>
               <span>Neighborhood</span>
-            </a>
+            </div>
           </Link>
 
           <Link href='/chats'>
-            <a
+            <div
               className={cls(
                 'flex flex-col items-center space-y-2 ',
                 router.pathname === '/chats'
@@ -129,11 +129,11 @@ export default function Layout({
                 ></path>
               </svg>
               <span>Chats</span>
-            </a>
+            </div>
           </Link>
 
           <Link href='/streams'>
-            <a
+            <div
               className={cls(
                 'flex flex-col items-center space-y-2 ',
                 router.pathname === '/streams'
@@ -156,11 +156,11 @@ export default function Layout({
                 ></path>
               </svg>
               <span>Live</span>
-            </a>
+            </div>
           </Link>
 
           <Link href='/profile'>
-            <a
+            <div
               className={cls(
                 'flex flex-col items-center space-y-2 ',
                 router.pathname === '/profile'
@@ -183,7 +183,7 @@ export default function Layout({
                 ></path>
               </svg>
               <span>My Carrot</span>
-            </a>
+            </div>
           </Link>
         </nav>
       )}

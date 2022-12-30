@@ -103,7 +103,7 @@ const EditProfile: NextPage = () => {
               height={56}
               src={avatarPreview}
               className='w-14 h-14 rounded-full bg-slate-500'
-              alt={user?.name}
+              alt={''}
             />
           ) : (
             <div className='w-14 h-14 rounded-full bg-slate-500' />

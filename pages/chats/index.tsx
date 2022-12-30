@@ -26,7 +26,7 @@ const Chats: NextPage = () => {
       <div className='divide-y-[1px] '>
         {data?.chats?.map(chat => (
           <Link href={`/chats/${chat.id}`} key={chat.id}>
-            <a className='flex px-4 cursor-pointer py-3 items-center space-x-3'>
+            <div className='flex px-4 cursor-pointer py-3 items-center space-x-3'>
               {chat.product?.user?.avatar ? (
                 <Image
                   width={48}
@@ -46,7 +46,7 @@ const Chats: NextPage = () => {
                   See you tomorrow in the corner at 2pm!
                 </p>
               </div>
-            </a>
+            </div>
           </Link>
         ))}
       </div>

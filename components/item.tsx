@@ -12,7 +12,7 @@ interface ItemProps {
 export default function Item({ id, title, price, hearts, image }: ItemProps) {
   return (
     <Link href={`/products/${id}`}>
-      <a className='flex px-4 pt-5 cursor-pointer justify-between'>
+      <div className='flex px-4 pt-5 cursor-pointer justify-between'>
         <div className='flex space-x-4'>
           {image ? (
             <Image
@@ -53,7 +53,7 @@ export default function Item({ id, title, price, hearts, image }: ItemProps) {
             <span>{hearts}</span>
           </div>
         </div>
-      </a>
+      </div>
     </Link>
   );
 }
