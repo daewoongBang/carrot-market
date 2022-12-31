@@ -4,6 +4,7 @@ import FloatingButton from '@components/floating-button';
 import Layout from '@components/layout';
 import useSWR, { SWRConfig } from 'swr';
 import { Product } from '@prisma/client';
+import client from '@libs/server/client';
 
 interface ProductWithCount extends Product {
   _count: {
@@ -74,7 +75,7 @@ const Page: NextPage<{ products: ProductWithCount[] }> = ({ products }) => {
 
 // SSR
 export async function getServerSideProps() {
-  const products = await client?.product.findMany({});
+  const products = await client.product?.findMany({});
 
   return {
     props: {

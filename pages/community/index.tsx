@@ -6,6 +6,7 @@ import FloatingButton from '@components/floating-button';
 import Layout from '@components/layout';
 import { Post, User } from '@prisma/client';
 import useCoords from '@libs/client/useCoords';
+import client from '@libs/server/client';
 
 interface PostWithUser extends Post {
   user: User;
@@ -19,18 +20,18 @@ interface PostsResponse {
   posts: PostWithUser[];
 }
 
-const Community: NextPage = () => {
-  const { latitude, longitude } = useCoords();
-  const { data } = useSWR<PostsResponse>(
-    latitude && longitude
-      ? `/api/posts?latitude=${latitude}&longitude=${longitude}`
-      : null
-  );
+const Community: NextPage<PostsResponse> = ({ posts }) => {
+  // const { latitude, longitude } = useCoords();
+  // const { data } = useSWR<PostsResponse>(
+  //   latitude && longitude
+  //     ? `/api/posts?latitude=${latitude}&longitude=${longitude}`
+  //     : null
+  // );
 
   return (
     <Layout hasTabBar title='Neighborhood' seoTitle='Neighborhood'>
       <div className='space-y-4 divide-y-[2px]'>
-        {data?.posts?.map(post => (
+        {posts?.map(post => (
           <Link key={post.id} href={`/community/${post.id}`}>
             <div className='flex cursor-pointer flex-col pt-4 items-start'>
               <span className='flex ml-4 items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800'>
@@ -64,7 +65,7 @@ const Community: NextPage = () => {
                     ></path>
                   </svg>
 
-                  <span>궁금해요 {post._count.wonderings}</span>
+                  <span>궁금해요 {post._count?.wonderings}</span>
                 </span>
 
                 <span className='flex space-x-2 items-center text-sm'>
@@ -83,7 +84,7 @@ const Community: NextPage = () => {
                     ></path>
                   </svg>
 
-                  <span>답변 {post._count.answers}</span>
+                  <span>답변 {post._count?.answers}</span>
                 </span>
               </div>
             </div>
@@ -110,5 +111,15 @@ const Community: NextPage = () => {
     </Layout>
   );
 };
+
+export async function getStaticProps() {
+  const posts = await client.post.findMany({ include: { user: true } });
+
+  return {
+    props: {
+      posts: JSON.parse(JSON.stringify(posts))
+    }
+  };
+}
 
 export default Community;
