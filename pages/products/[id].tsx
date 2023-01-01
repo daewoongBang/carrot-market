@@ -1,16 +1,17 @@
 import { Fragment, useEffect, useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
+import Image from 'next/image';
 import useSWR from 'swr';
 
 import Button from '@components/button';
 import Layout from '@components/layout';
 
-import type { NextPage } from 'next';
+import type { GetStaticPaths, GetStaticProps, NextPage } from 'next';
 import { Chat, Product, User } from '@prisma/client';
 import useMutation from '@libs/client/useMutation';
 import { cls } from '@libs/client/utils';
-import Image from 'next/image';
+import client from '@libs/server/client';
 
 interface ProductWithUser extends Product {
   user: User;
@@ -27,9 +28,11 @@ interface ITalkSeller {
   chat: Chat;
 }
 
-const ItemDetail: NextPage = () => {
-  const [product, setProduct] = useState<ProductWithUser>();
-
+const ItemDetail: NextPage<ItemDetailResponse> = ({
+  product,
+  relatedProducts,
+  isLiked
+}) => {
   const router = useRouter();
   const { data, mutate } = useSWR<ItemDetailResponse>(
     router.query.id ? `/api/products/${router.query.id}` : null
@@ -57,10 +60,6 @@ const ItemDetail: NextPage = () => {
   };
 
   useEffect(() => {
-    data && setProduct(data?.product);
-  }, [data]);
-
-  useEffect(() => {
     if (chatData?.ok) {
       router.push(`/chats/${chatData.chat.id}`);
     }
@@ -70,13 +69,13 @@ const ItemDetail: NextPage = () => {
     <Layout canGoBack seoTitle='Product Detail'>
       <div className='p-4'>
         <div className='mb-8'>
-          {!!data?.product?.image ? (
+          {!!product?.image ? (
             <div className='relative pb-80'>
               <Image
-                src={`https://imagedelivery.net/YTTDtCGXEuDumQh-ahhG9g/${data.product.image}/public`}
+                src={`https://imagedelivery.net/YTTDtCGXEuDumQh-ahhG9g/${product.image}/public`}
                 className='object-contain'
-                layout='fill'
-                alt={data.product.name}
+                fill={true}
+                alt={product.name}
                 priority={true}
               />
             </div>
@@ -85,13 +84,13 @@ const ItemDetail: NextPage = () => {
           )}
 
           <div className='flex cursor-pointer items-center space-x-3 py-3 border-t border-b'>
-            {!!data?.product?.user?.avatar ? (
+            {!!product?.user?.avatar ? (
               <Image
                 width={48}
                 height={48}
-                src={`https://imagedelivery.net/YTTDtCGXEuDumQh-ahhG9g/${data.product.user.avatar}/avatar`}
+                src={`https://imagedelivery.net/YTTDtCGXEuDumQh-ahhG9g/${product.user.avatar}/avatar`}
                 className='w-12 h-12 bg-slate-500 rounded-full'
-                alt={data.product.user.name}
+                alt={product.user.name}
               />
             ) : (
               <div className='w-12 h-12 rounded-full bg-slate-300' />
@@ -99,7 +98,7 @@ const ItemDetail: NextPage = () => {
 
             <div>
               <p className='text-sm font-medium text-gray-700'>
-                {data?.product?.user?.name}
+                {product?.user?.name}
               </p>
 
               <Link href={`/users/profiles/${product?.user?.id}`}>
@@ -128,12 +127,12 @@ const ItemDetail: NextPage = () => {
                 onClick={onClickFav}
                 className={cls(
                   'p-3 rounded-md flex items-center justify-center hover:bg-gray-100',
-                  data?.isLiked
+                  isLiked
                     ? 'text-red-500  hover:text-red-600'
                     : 'text-gray-400 hover:text-gray-500'
                 )}
               >
-                {data?.isLiked ? (
+                {isLiked ? (
                   <svg
                     className='w-6 h-6'
                     fill='currentColor'
@@ -172,7 +171,7 @@ const ItemDetail: NextPage = () => {
           <h2 className='text-2xl font-bold text-gray-900'>Similar items</h2>
 
           <div className='mt-6 grid grid-cols-2 gap-4'>
-            {data?.relatedProducts.map(relatedProuct => (
+            {relatedProducts.map(relatedProuct => (
               <Link
                 key={relatedProuct.id}
                 href={`/products/${relatedProuct.id}`}
@@ -191,6 +190,75 @@ const ItemDetail: NextPage = () => {
       </div>
     </Layout>
   );
+};
+
+export const getStaticPaths: GetStaticPaths = () => {
+  return {
+    paths: [],
+    fallback: 'blocking'
+  };
+};
+
+export const getStaticProps: GetStaticProps = async ctx => {
+  if (!ctx?.params?.id) {
+    return {
+      props: {}
+    };
+  } else {
+    const product = await client.product.findUnique({
+      where: {
+        id: +ctx.params.id.toString()
+      },
+      include: {
+        user: {
+          select: {
+            id: true,
+            name: true,
+            avatar: true
+          }
+        }
+      }
+    });
+
+    const terms = product?.name.split(' ').map(word => ({
+      name: {
+        contains: word
+      }
+    }));
+
+    const relatedProducts = await client.product.findMany({
+      where: {
+        OR: terms,
+        AND: {
+          id: {
+            not: product?.id
+          }
+        }
+      }
+    });
+
+    const isLiked = false;
+    // Boolean(
+    //   await client.record.findFirst({
+    //     where: {
+    //       productId: product?.id,
+    //       userId: user?.id,
+    //       kind: 'Fav'
+    //     },
+    //     select: {
+    //       id: true
+    //     }
+    //   })
+    // );
+
+    return {
+      props: {
+        product: JSON.parse(JSON.stringify(product)),
+        relatedProducts: JSON.parse(JSON.stringify(relatedProducts)),
+        isLiked
+      }
+    };
+  }
 };
 
 export default ItemDetail;
