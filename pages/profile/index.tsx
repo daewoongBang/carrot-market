@@ -1,26 +1,19 @@
+import { Suspense } from 'react';
 import type { NextPage, NextPageContext } from 'next';
 import Link from 'next/link';
-import Rating from '@components/rating';
+import Image from 'next/image';
+
+import Reviews from './reviews';
 import Layout from '@components/layout';
 import useUser from '@libs/client/useUser';
-import useSWR, { SWRConfig } from 'swr';
-import { Review, User } from '@prisma/client';
-import Image from 'next/image';
+import { SWRConfig } from 'swr';
+import { User } from '@prisma/client';
+
 import { withSsrSession } from '@libs/server/withSession';
 import client from '@libs/server/client';
 
-interface ReviewWithUser extends Review {
-  createdBy: User;
-}
-
-interface ReviewsResponse {
-  ok: boolean;
-  reviews: ReviewWithUser[];
-}
-
 const Profile: NextPage = () => {
   const { user } = useUser();
-  const { data } = useSWR<ReviewsResponse>('/api/reviews');
 
   return (
     <Layout title='My Carrot' hasTabBar seoTitle='My Carrot'>
@@ -121,25 +114,9 @@ const Profile: NextPage = () => {
           </Link>
         </div>
 
-        {data?.reviews.map(review => (
-          <div key={review.id} className='mt-12'>
-            <div className='flex space-x-4 items-center'>
-              <div className='w-12 h-12 rounded-full bg-slate-400' />
-
-              <div>
-                <h4 className='text-sm font-bold text-gray-800'>
-                  {review.createdBy.name}
-                </h4>
-
-                <Rating star={review.score} />
-              </div>
-            </div>
-
-            <div className='mt-4 text-gray-600 text-sm'>
-              <p>{review.review}</p>
-            </div>
-          </div>
-        ))}
+        <Suspense fallback={<span>Loading...</span>}>
+          <Reviews />
+        </Suspense>
       </div>
     </Layout>
   );
@@ -149,29 +126,32 @@ const Page: NextPage<{ profile: User }> = ({ profile }) => {
   return (
     <SWRConfig
       value={{
-        fallback: {
-          '/api/users/me': {
-            ok: true,
-            profile
-          }
-        }
+        suspense: true
       }}
+      // value={{
+      //   fallback: {
+      //     '/api/users/me': {
+      //       ok: true,
+      //       profile
+      //     }
+      //   }
+      // }}
     >
       <Profile />
     </SWRConfig>
   );
 };
 
-export const getServerSideProps = withSsrSession(
-  async ({ req }: NextPageContext) => {
-    const profile = await client.user.findUnique({
-      where: { id: req?.session.user?.id }
-    });
+// export const getServerSideProps = withSsrSession(
+//   async ({ req }: NextPageContext) => {
+//     const profile = await client.user.findUnique({
+//       where: { id: req?.session.user?.id }
+//     });
 
-    return {
-      props: { profile: JSON.parse(JSON.stringify(profile)) }
-    };
-  }
-);
+//     return {
+//       props: { profile: JSON.parse(JSON.stringify(profile)) }
+//     };
+//   }
+// );
 
 export default Page;
